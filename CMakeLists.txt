@@ -156,7 +156,9 @@ target_include_directories(Edyn
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-# set_target_properties(Edyn PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+if (Edyn_MAIN_PROJECT)
+    set_target_properties(Edyn PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+endif()
 
 target_compile_features(Edyn PUBLIC cxx_std_17)
 target_compile_definitions(Edyn

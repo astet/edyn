@@ -88,12 +88,19 @@ public:
     void export_dirty(const entt::registry &registry, packet::registry_snapshot &snap) override {
         constexpr auto indices = std::make_integer_sequence<unsigned, sizeof...(Components)>{};
         auto network_dirty_view = registry.view<network_dirty>();
-
+#if defined(_MSC_VER)
         network_dirty_view.each([&, indices](entt::entity entity, const network_dirty &n_dirty) {
             n_dirty.each([&, indices](entt::id_type id) {
                 export_by_type_id(registry, entity, id, snap, indices);
             });
         });
+#else
+        network_dirty_view.each([&](entt::entity entity, const network_dirty &n_dirty) {
+            n_dirty.each([&](entt::id_type id) {
+                export_by_type_id(registry, entity, id, snap, indices);
+            });
+        });
+#endif
     }
 };
 

@@ -56,10 +56,15 @@ class message_queue {
         sink_type sink() {
             return entt::sink{m_signal};
         }
-
+#if defined(ENTT_NOEXCEPT)
         entt::id_type type_id() const ENTT_NOEXCEPT override {
             return entt::type_index<Message>::value();
         }
+#else
+        entt::id_type type_id() const noexcept override {
+            return entt::type_index<Message>::value();
+        }
+#endif
 
     private:
         std::mutex m_mutex;

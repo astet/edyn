@@ -94,21 +94,19 @@ using tuple_of_shape_views_t = map_to_tuple_of_views<std::decay_t<decltype(shape
  * @param visitor Function to be called once with the shape corresponding to
  * the shape `index`.
  */
-
-// template<typename VisitorType, std::size_t... I>
-// void visit_shape_impl(const shape_index &index, entt::entity entity,
-//                  const tuple_of_shape_views_t &views_tuple, VisitorType visitor, std::index_sequence<I...>) {
-//     visit_component(shapes_tuple, index.value, entity, std::make_tuple(std::get<I>(views_tuple)...), visitor);
-// }
-
+#if defined(_MSC_VER)
 template<typename VisitorType, typename... Ts>
 void visit_shape(const shape_index &index, entt::entity entity,
                  const tuple_of_shape_views_t &views_tuple, VisitorType visitor) {
-    // visit_component(index.value, entity, views_tuple, visitor);
     visit_component(shapes_tuple, index.value, entity, views_tuple, visitor);
-    // visit_shape_impl(index, entity, views_tuple, visitor,
-    //                  std::make_index_sequence<std::tuple_size<std::remove_reference_t<decltype(views_tuple)>>::value>{});
 }
+#else
+template<typename VisitorType>
+void visit_shape(const shape_index &index, entt::entity entity,
+                 const tuple_of_shape_views_t &views_tuple, VisitorType visitor) {
+    visit_component(index.value, entity, views_tuple, visitor);
+}
+#endif
 
 /**
  * @brief Obtains the shape held by `entity` using a shape index and passes
