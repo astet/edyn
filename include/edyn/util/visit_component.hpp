@@ -64,11 +64,33 @@ namespace detail {
  * @param views_tuple Tuple of views for each type `Ts...`.
  * @param visitor Function that will be called with the desired component.
  */
-template<typename IndexType, typename VisitorType, typename... Ts>
+// template<typename IndexType, typename VisitorType, typename... Ts>
+// void visit_component([[maybe_unused]] std::tuple<Ts...>, IndexType index, entt::entity entity,
+//                      const std::tuple<entt::basic_view<entt::entity, entt::get_t<Ts>, entt::exclude_t<>>...> &views_tuple,
+//                      VisitorType visitor) {
+//     constexpr auto table = detail::visitor_table<VisitorType, Ts...>{};
+//     if (index < table.array.functions.size()) {
+//         table.array.functions[index](entity, views_tuple, visitor);
+//     }
+// }
+
+template<typename VisitorType, typename Tuple, std::size_t... I>
+constexpr decltype(auto) make_visitor_table_impl(Tuple&& tuple, std::index_sequence<I...>) {
+    return detail::visitor_table<VisitorType, std::get<I>(tuple)...>{};
+}
+
+template<typename VisitorType, typename Tuple>
+constexpr decltype(auto) make_visitor_table(Tuple&& tuple) {
+    return make_visitor_table_impl<VisitorType>(std::forward<Tuple>(tuple),
+                         std::make_index_sequence<std::tuple_size<std::remove_reference_t<Tuple>>::value>{});
+}
+
+template<typename IndexType, typename VisitorType, typename Tuple, typename... Ts>
 void visit_component([[maybe_unused]] std::tuple<Ts...>, IndexType index, entt::entity entity,
-                     const std::tuple<entt::basic_view<entt::entity, entt::get_t<Ts>, entt::exclude_t<>>...> &views_tuple,
+                     const Tuple &views_tuple,
                      VisitorType visitor) {
     constexpr auto table = detail::visitor_table<VisitorType, Ts...>{};
+    // constexpr auto table = make_visitor_table<VisitorType>(views_tuple);
     if (index < table.array.functions.size()) {
         table.array.functions[index](entity, views_tuple, visitor);
     }
